@@ -4,6 +4,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 import time
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
 import os
 import shutil
 #CAPTCHAR
@@ -14,6 +15,30 @@ from io import BytesIO
 from datetime import date, timedelta
 from calendar import monthrange
 
+def makeLogin():
+    driver.get("https://fisco.net.br/isseletronico/conceicaodojacuipe/")
+    html = driver.page_source
+    # print(html)
+    iframe = driver.find_element(By.NAME, "mainframe")
+    driver.switch_to.frame(iframe)
+
+    driver.find_element(By.NAME, "txtLogin").send_keys(nome)
+    driver.find_element(By.NAME, "txtSenha").send_keys(codigo)
+
+    time.sleep(10)
+def goListNotes():
+    try:
+        myDiv = driver.find_element(By.ID,"btnNotaFiscal")
+        myDiv.click();
+        iframe = driver.find_element(By.NAME, "conteudo")
+        driver.switch_to.frame(iframe)
+        myDiv = driver.find_element(By.ID,"btnCopiar")
+        myDiv.click();
+        iframe = driver.find_element(By.NAME, "direita")
+        driver.switch_to.frame(iframe)
+    except NoSuchElementException:
+        time.sleep(5)
+        goListNotes()
 #SCRIPT PARA O ARQUIVO
 
 # Abrir o arquivo de texto
@@ -56,56 +81,18 @@ for line in lines:
 # Iterar sobre as empresas e realizar as ações desejadas
 for nome, codigo, empresa in empresas:
     driver = webdriver.Chrome(executable_path="/usr/local/bin/chromedriver")
-    driver.get("https://fisco.net.br/isseletronico/conceicaodojacuipe/")
-    html = driver.page_source
-    # print(html)
-    iframe = driver.find_element(By.NAME, "mainframe")
-    driver.switch_to.frame(iframe)
-
-    driver.find_element(By.NAME, "txtLogin").send_keys(nome)
-    driver.find_element(By.NAME, "txtSenha").send_keys(codigo)
-
-    time.sleep(10)
-
-    # RESOLVER CAPTCHAR
-    # URL da imagem do captcha
-    # captcha_url = 'https://www.fisco.net.br/notafiscal/NFA/Administrador/ImagemCaptcha.aspx'
-
-    # # Fazer o download da imagem do captcha
-    # pull_image = requests.get(captcha_url)
-    # with open("test_image.jpg", "wb+") as myfile:
-    #     myfile.write(pull_image.content)
-
-    # # Aplicar OCR para extrair o texto da imagem
-    # captcha_text = pytesseract.image_to_string(myfile)
-
-    # # Imprimir o texto do captcha
-    # print("Texto do Captcha:", captcha_text)
-    # time.sleep(10)
-
-
-    # Defina o nome da empresa
-    # nome_empresa = "Cardoso_Consultoria"
-    nome_empresa = empresa
-    
+    makeLogin()
+    nome_empresa = empresa    
     #caminho da empresa
     diretorio_download = "/home/pedro/Downloads"
-    myDiv = driver.find_element(By.ID,"btnNotaFiscal")
-    myDiv.click();
-    iframe = driver.find_element(By.NAME, "conteudo")
-    driver.switch_to.frame(iframe)
-    myDiv = driver.find_element(By.ID,"btnCopiar")
-    myDiv.click();
-    iframe = driver.find_element(By.NAME, "direita")
-    driver.switch_to.frame(iframe)
-
+    goListNotes()
     # Crie uma pasta com o nome da empresa no diretório de download
     pasta_empresa = os.path.join(diretorio_download, nome_empresa)
     os.makedirs(pasta_empresa, exist_ok=True)
 
     # Selecionar o checkbox com ID "chkListarEmitidas"
-    chkListarEmitidas_element =  driver.find_element(By.ID,'chkListarEmitidas')
-    chkListarEmitidas_element.click()
+    # chkListarEmitidas_element =  driver.find_element(By.ID,'chkListarEmitidas')
+    # chkListarEmitidas_element.click()
 
 
     # Obter a data atual
@@ -148,10 +135,6 @@ for nome, codigo, empresa in empresas:
             key=os.path.getctime,
         )
         # Copie o arquivo baixado para a pasta da empresa
-        shutil.move(nome_arquivo, os.path.join(pasta_empresa, f"arquivo{i+1}.xml"))
+        shutil.move(nome_arquivo, os.path.join(pasta_empresa, f"nota{i+1}.xml"))
     # Feche o navegador
     driver.quit()
-
-
-
-
