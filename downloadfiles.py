@@ -39,6 +39,18 @@ def goListNotes():
     except NoSuchElementException:
         time.sleep(5)
         goListNotes()
+def downloadNotes(elements):
+    for i, element in enumerate(elements):
+        action = ActionChains(driver)
+        action.move_to_element(element).click().perform()
+        time.sleep(5)
+        # Obtenha o nome do arquivo baixado
+        nome_arquivo = max(
+            [os.path.join(diretorio_download, f) for f in os.listdir(diretorio_download)],
+            key=os.path.getctime,
+        )
+        # Copie o arquivo baixado para a pasta da empresa
+        shutil.move(nome_arquivo, os.path.join(pasta_empresa, f"nota{i+1}.xml"))
 #SCRIPT PARA O ARQUIVO
 
 # Abrir o arquivo de texto
@@ -80,6 +92,7 @@ for line in lines:
             empresa = ''
 # Iterar sobre as empresas e realizar as ações desejadas
 for nome, codigo, empresa in empresas:
+    i=1
     driver = webdriver.Chrome(executable_path="/usr/local/bin/chromedriver")
     makeLogin()
     nome_empresa = empresa    
@@ -119,22 +132,18 @@ for nome, codigo, empresa in empresas:
     botao_pesquisar = driver.find_element(By.ID,"btnPesquisar")
     botao_pesquisar.click()
 
-
-
     time.sleep(5)
 
     # xpath = '//a[contains(@class, "fa-file-excel")]'
     elements = driver.find_elements(By.CLASS_NAME,"fas.fa-file-excel")
-    for i, element in enumerate(elements):
-        action = ActionChains(driver)
-        action.move_to_element(element).click().perform()
-        time.sleep(5)
-        # Obtenha o nome do arquivo baixado
-        nome_arquivo = max(
-            [os.path.join(diretorio_download, f) for f in os.listdir(diretorio_download)],
-            key=os.path.getctime,
-        )
-        # Copie o arquivo baixado para a pasta da empresa
-        shutil.move(nome_arquivo, os.path.join(pasta_empresa, f"nota{i+1}.xml"))
+    # downloadNotes(elements)
+    try:
+        i=i+1;
+        element = driver.find_element(By.LINK_TEXT,str(i))
+        element.click()
+        elements = driver.find_elements(By.CLASS_NAME,"fas.fa-file-excel")
+        downloadNotes(elements)        
+    except NoSuchElementException:
+        print("ERROR");
     # Feche o navegador
     driver.quit()
