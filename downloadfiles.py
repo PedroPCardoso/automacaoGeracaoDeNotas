@@ -136,7 +136,7 @@ for nome, codigo, empresa in empresas:
 
     # xpath = '//a[contains(@class, "fa-file-excel")]'
     elements = driver.find_elements(By.CLASS_NAME,"fas.fa-file-excel")
-    # downloadNotes(elements)
+    downloadNotes(elements)
     try:
         i=i+1;
         element = driver.find_element(By.LINK_TEXT,str(i))
@@ -144,6 +144,6 @@ for nome, codigo, empresa in empresas:
         elements = driver.find_elements(By.CLASS_NAME,"fas.fa-file-excel")
         downloadNotes(elements)        
     except NoSuchElementException:
-        print("ERROR");
+        print("Não tem mais páginas");
     # Feche o navegador
     driver.quit()
