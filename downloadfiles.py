@@ -93,11 +93,13 @@ for line in lines:
 # Iterar sobre as empresas e realizar as ações desejadas
 for nome, codigo, empresa in empresas:
     i=1
-    driver = webdriver.Chrome(executable_path="/usr/local/bin/chromedriver")
+    service = Service(executable_path='C:\chromedriver_win32\chromedriver.exe')
+    driver = webdriver.Chrome(service=service)
     makeLogin()
     nome_empresa = empresa    
     #caminho da empresa
-    diretorio_download = "/home/pedro/Downloads"
+    # diretorio_download = "/home/pedro/Downloads"
+    diretorio_download = os.path.join(os.path.expanduser("~"), "Downloads")
     goListNotes()
     # Crie uma pasta com o nome da empresa no diretório de download
     pasta_empresa = os.path.join(diretorio_download, nome_empresa)
