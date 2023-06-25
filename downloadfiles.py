@@ -4,6 +4,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 import time
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 import os
 import shutil
@@ -93,8 +94,14 @@ for line in lines:
 # Iterar sobre as empresas e realizar as ações desejadas
 for nome, codigo, empresa in empresas:
     i=1
+    options = Options()
+    options.add_experimental_option("prefs", {
+    "download.prompt_for_download": False,
+    "download.directory_upgrade": True,
+    "safebrowsing.enabled": True
+    })
     service = Service(executable_path='C:\chromedriver_win32\chromedriver.exe')
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome(service=service,options=options)
     makeLogin()
     nome_empresa = empresa    
     #caminho da empresa
